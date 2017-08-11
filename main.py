@@ -65,7 +65,7 @@ class Music():
 		self.a.set_volume(.5)
 bgm=Music()
 #************************************** Danmus *************************************
-class Danmu_0(cocos.sprite.Sprite):
+class Danmu_0(cocos.sprite.Sprite):			# danmu : line
 	def __init__(self,img,x,y,drt,friend=1,speed=250,harm=1):
 		super(Danmu_0,self).__init__('res/pics/danmu/'+img+'.png',position=(x,y))
 		self.cshape = cm.CircleShape(eu.Vector2(self.x,self.y),self.width//2)
@@ -87,7 +87,7 @@ class Danmu_0(cocos.sprite.Sprite):
 			self.kill()
 		self.cshape.center = eu.Vector2(self.x,self.y)
 
-class Danmu_circle(cocos.sprite.Sprite):
+class Danmu_circle(cocos.sprite.Sprite):		# danmu : a circle, n for all directions
 	def __init__(self,img,x,y,n,rad=0,friend=1,speed=250,harm=1):
 		super(Danmu_circle,self).__init__('res/pics/danmu/'+img+'.png',position=(x,y))
 		self.du,self.img,self.rad=360.0/n,img,rad
@@ -100,7 +100,7 @@ class Danmu_circle(cocos.sprite.Sprite):
 			self.parent.add(Danmu_0(self.img,self.x,self.y,self.rad+self.du*i,self.friend,self.speed,self.harm))
 		self.kill()
 
-class Danmu_kenshin(cocos.sprite.Sprite):
+class Danmu_kenshin(cocos.sprite.Sprite):		# Jian Shen
 	def __init__(self,img,x,y,n,friend=0,speed=350,harm=1):
 		super(Danmu_kenshin,self).__init__('res/pics/danmu/'+img+'.png',position=(x,y))
 		self.type=3
@@ -118,7 +118,7 @@ class Danmu_kenshin(cocos.sprite.Sprite):
 		if self.t>4.5:
 			self.kill()
 
-class Danmu_goken(cocos.sprite.Sprite):
+class Danmu_goken(cocos.sprite.Sprite):			# Yu Jian Shu
 	def __init__(self,img,x,y,friend=0,speed=500,harm=1):
 		super(Danmu_goken,self).__init__('res/pics/danmu/'+img+'.png',position=(x,y))
 		self.type=3
@@ -302,8 +302,8 @@ class L1(cocos.layer.Layer):
 						i.get_harm(j.hid,j.harm)
 
 	def deal_coli(self):
-		self.coli[0].clear()
-		self.coli[1].clear()
+		self.coli[0].clear()		# colis for ziji and allies 
+		self.coli[1].clear()		# colis for enermies
 		self.coli[0].add(self.dy)
 		self.eners=[]
 		for i in self.get_children():
