@@ -165,9 +165,7 @@ class Ziji(cocos.sprite.Sprite):
 		self.atking,self.jmping,self.magicing=0,0,0
 		self.status,self.pt,self.next_sta=0,0,0
 		self.cds=[0]*10
-		self.magic=[['i'],['j']]
-                for i in self.magic:
-                    i=map(lambda x:ord(x),i)
+		self.magic=['i']
 
 	def do_move(self,dt):
 		global keym,offset_x,map_w,_width
@@ -212,9 +210,9 @@ class Ziji(cocos.sprite.Sprite):
 		self.image=self.acts[self.status][self.pt]
 
 	def cal_km(self,dt):
-		global bgm,offset_x,keym
+		global bgm,offset_x
 		for i in self.magic:
-			if keym.check(i):
+			if ord(i) in keym.keyp and self.cds[1]<=0:
 				self.cds[1]=1
 				self.parent.add(Danmu_goken('dan1',self.x+70*self.direction,self.y+140))
 				bgm.a.play()
