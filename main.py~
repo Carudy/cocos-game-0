@@ -159,18 +159,25 @@ class Ziji(cocos.sprite.Sprite):
 		self.type,self.friend=0,0
 		self.ori=self.image
 		self.speed,self.direction=300,1
+                self.ldrt=1
 		self.dx,self.dy=0,0
 		self.schedule(self.run)
 		self.cshape = cm.CircleShape(eu.Vector2(self.x,self.y),self.width//2)
 		self.atking,self.jmping,self.magicing=0,0,0
 		self.status,self.pt,self.next_sta=0,0,0
 		self.cds=[0]*10
-		self.magic=['i']
+                self.magic=[0,0]
+		self.magic[0]=[['i'],['j']]
+		self.magic[1]=[['i'],['j']]
+                for i in self.magic:
+                    i=map(lambda x:ord(x),i)
 
 	def do_move(self,dt):
 		global keym,offset_x,map_w,_width
 		self.scale_x=self.direction
-		self.direction=self.dx if self.dx else self.direction
+                if self.ldrt!=self.direction:
+		    self.direction=1 if self.dx>0 else 0 
+                    self.ldrt=self.direction 
 		kv=0.1 if self.status in [2,3] else 1
 		dx=self.speed*self.dx*dt*(0.5 if self.jmping else 1)*kv
 		dy=self.speed*self.dy*dt*kv
@@ -210,9 +217,9 @@ class Ziji(cocos.sprite.Sprite):
 		self.image=self.acts[self.status][self.pt]
 
 	def cal_km(self,dt):
-		global bgm,offset_x
-		for i in self.magic:
-			if ord(i) in keym.keyp and self.cds[1]<=0:
+		global bgm,offset_x,keym
+		for i in self.magic[self.direction]:
+			if keym.check(i):
 				self.cds[1]=1
 				self.parent.add(Danmu_goken('dan1',self.x+70*self.direction,self.y+140))
 				bgm.a.play()
