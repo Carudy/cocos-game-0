@@ -159,25 +159,27 @@ class Ziji(cocos.sprite.Sprite):
 		self.type,self.friend=0,0
 		self.ori=self.image
 		self.speed,self.direction=300,1
-                self.ldrt=1
+		self.ldrt=1
 		self.dx,self.dy=0,0
 		self.schedule(self.run)
 		self.cshape = cm.CircleShape(eu.Vector2(self.x,self.y),self.width//2)
 		self.atking,self.jmping,self.magicing=0,0,0
 		self.status,self.pt,self.next_sta=0,0,0
 		self.cds=[0]*10
-                self.magic=[0,0]
-		self.magic[0]=[['i'],['j']]
-		self.magic[1]=[['i'],['j']]
-                for i in self.magic:
-                    i=map(lambda x:ord(x),i)
+		self.magic=[0,0]
+		self.magic[0]=['saj']
+		self.magic[1]=['sdj']
+		for j in xrange(2):
+			for i in xrange(len(self.magic[j])):
+				self.magic[j][i]=map(lambda x:ord(x),list(self.magic[j][i]))
 
 	def do_move(self,dt):
 		global keym,offset_x,map_w,_width
-		self.scale_x=self.direction
-                if self.ldrt!=self.direction:
-		    self.direction=1 if self.dx>0 else 0 
-                    self.ldrt=self.direction 
+		self.scale_x=1 if self.direction else -1
+		if self.dx:
+			self.ldrt=1 if self.dx>0 else 0 
+		if self.ldrt!=self.direction:
+			self.direction =self.ldrt
 		kv=0.1 if self.status in [2,3] else 1
 		dx=self.speed*self.dx*dt*(0.5 if self.jmping else 1)*kv
 		dy=self.speed*self.dy*dt*kv
@@ -216,17 +218,27 @@ class Ziji(cocos.sprite.Sprite):
 				self.pt=(self.pt+1)%(len(self.acts[self.status]))
 		self.image=self.acts[self.status][self.pt]
 
+	def goken(self):
+		global keym
+		self.cds[1]=1
+		self.parent.add(Danmu_goken('dan1',self.x+70*self.direction,self.y+140))
+		bgm.a.play()
+		self.magicing=1
+		self.atking=0
+		self.dx=0
+		return
+
 	def cal_km(self,dt):
 		global bgm,offset_x,keym
+		now=0
 		for i in self.magic[self.direction]:
-			if keym.check(i):
-				self.cds[1]=1
-				self.parent.add(Danmu_goken('dan1',self.x+70*self.direction,self.y+140))
-				bgm.a.play()
-				self.magicing=1
-				self.atking=0
-				self.dx=0
-				return
+			if self.parent.check(i):
+				keym.qu=[]
+				if now==0 and self.cds[1]<=0:
+					self.goken()
+					return
+			else:
+				now+=1
 		self.atking=ord('j') in keym.keyp
 		if not self.atking:
 			self.dx=(1 if ord('d') in keym.keyp else -1 if ord('a') in keym.keyp else 0)
@@ -281,23 +293,13 @@ class Key_Mouse(cocos.layer.Layer):
 	def __init__(self):
 		super(Key_Mouse,self).__init__()
 		self.keyp=set()
-                self.qu=[]
-                self.cd=0
-		self.schedule(self.run)
+		self.qu=[]
 	def on_key_press (self,key,modifiers):
 		self.keyp.add(key)
-                self.qu.append(key)
+		self.qu.append(key)
 	def on_key_release (self,key,modifiers):
 		self.keyp.remove(key)
-        def check(self,x):
-                return x==self.qu[-len(x):]
-        def run(self,dt):
-                self.cd-=min(self.cd,dt)
-                if len(self.qu)<=0:
-                    return
-                if self.cd<=0:
-                    self.cd=0.5
-                    self.qu=self.qu[1:]
+	
 
 class L0(cocos.layer.Layer):
 	def __init__(self):
@@ -313,6 +315,8 @@ class L1(cocos.layer.Layer):
 		self.coli=[cm.CollisionManagerBruteForce(),cm.CollisionManagerBruteForce()]
 		self.eners=[]
 		self.schedule(self.run)
+		self.qu=[]
+		self.cd=0
 
 	def deal_harm(self,x):
 		for i in x.known_objs():
@@ -343,7 +347,21 @@ class L1(cocos.layer.Layer):
 			self.dy.dy=0
 			self.dy.y=floor
 
+	def deal_kqu(self,dt):
+		global keym
+		self.cd-=min(self.cd,dt)
+		if len(keym.qu)<=0:
+			return
+		if self.cd<=0:
+			self.cd=0.5
+			keym.qu=keym.qu[1:]
+
+	def check(self,x):
+		global keym
+		return x==keym.qu[-len(x):]
+
 	def run(self,dt):
+		self.deal_kqu(dt)
 		self.deal_coli()
 		self.deal_harm(self.coli[0])
 		self.deal_harm(self.coli[1])
